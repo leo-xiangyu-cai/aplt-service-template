@@ -1,0 +1,20 @@
+project_name: aplt-service-template
+
+containers:
+  cruft:
+    build_directory: .batect
+    volumes:
+      - local: .
+        container: /work
+      - local: $HOME/.ssh
+        container: /home/container-user/.ssh
+    run_as_current_user:
+      enabled: true
+      home_directory: /home/container-user
+
+tasks:
+  render:
+    description: Generate pre-fonfigured Appolution service repository
+    run:
+      container: cruft
+      command: scripts/render-template.sh
