@@ -1,0 +1,63 @@
+containers:
+  runtime-env:
+    image: alpine:3.11.3
+    dependencies:
+      - mongodb-test
+      - mongodb-dev
+
+  lint-env:
+    image: node:10-alpine
+    volumes:
+      - local: .
+        container: /code
+    working_directory: /code
+
+  dev-env:
+    image: node:10-alpine
+    dependencies:
+      - mongodb-dev
+      - mongodb-test
+    ports:
+      - local: 5300
+        container: 5300
+    volumes:
+      - local: .
+        container: /code
+        options: cached
+    environment:
+      MODE: DEV
+      DB_CONNECT: mongodb://dev:dev@localhost:27017/
+      TOKEN_SECRET: appolution
+    working_directory: /code
+
+
+  mongodb-dev:
+    image: mongo:latest
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: test
+      MONGO_INITDB_ROOT_PASSWORD: test
+
+  mongodb-test:
+    image: mongo:latest
+    ports:
+      - local: 27018
+        container: 27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: test
+      MONGO_INITDB_ROOT_PASSWORD: test
+
+tasks:
+  env:
+    description: run as dev mode
+    run:
+      container: runtime-env
+
+  lint:
+    description: run eslint
+    run:
+      container: lint-env
+      command: npm run lint
+
+
