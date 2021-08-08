@@ -1,4 +1,4 @@
 {
   "service_name": "e.g. test",
-  "project_name":"aplt-{{cookiecutter.service_name}}"
+  "project_name":"{{cookiecutter.service_name}}"
 }

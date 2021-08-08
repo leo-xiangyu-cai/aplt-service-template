@@ -41,10 +41,10 @@
     "ts-node-dev": "^1.0.0-pre.40"
   },
   "scripts": {
-    "build": "tsc",
-    "start": "npm install && npm run build && ENVIRONMENT=dev node dist/server.js",
+    "build": "npm install && tsc",
+    "start": "npm run build && ENVIRONMENT=dev node dist/server.js",
     "start:watch": "ENVIRONMENT=dev nodemon src/server.ts",
-    "test": "ENVIRONMENT=unitTest jest --silent",
+    "test": "jest --silent",
     "lint": "eslint ./"
   },
   "jest": {
