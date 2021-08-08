@@ -5,15 +5,6 @@ containers:
       - mongodb-test
       - mongodb-dev
 
-  runtime-env:
-    image: node:10-alpine
-    volumes:
-      - local: .
-        container: /code
-    working_directory: /code
-    dependencies:
-      - mongodb-dev
-
   lint-env:
     image: node:10-alpine
     volumes:
@@ -21,24 +12,24 @@ containers:
         container: /code
     working_directory: /code
 
-  dev-env:
+  test-env:
     image: node:10-alpine
     dependencies:
-      - mongodb-dev
       - mongodb-test
-    ports:
-      - local: 5300
-        container: 5300
     volumes:
       - local: .
         container: /code
-        options: cached
-    environment:
-      MODE: DEV
-      DB_CONNECT: mongodb://dev:dev@localhost:27017/
-      TOKEN_SECRET: appolution
     working_directory: /code
 
+  runtime-env:
+    image: node:10-alpine
+    volumes:
+      - local: .
+        container: /code
+    ports:
+      - local: 5300
+        container: 5300
+    working_directory: /code
 
   mongodb-dev:
     image: mongo:latest
@@ -47,6 +38,8 @@ containers:
     environment:
       MONGO_INITDB_ROOT_USERNAME: test
       MONGO_INITDB_ROOT_PASSWORD: test
+    additional_hostnames:
+      - 127.0.0.1
 
   mongodb-test:
     image: mongo:latest
@@ -75,3 +68,10 @@ tasks:
       container: runtime-env
       command: npm run start
 
+  test:
+    description: run test
+    run:
+      container: test-env
+      command: npm run test
+      environment:
+        dbConn: http://mongodb-test:27017

@@ -14,20 +14,26 @@ router.post('/health-check', async (ctx) => {
   try {
     const request = new HealthCheckRequest(ctx.request.rawBody);
     const id = uuid();
-    const health = new HealthEntity({
-      id,
-      message: request.message,
-    });
-    await health.save();
-    const tempHealthEntity = HealthEntity.findOne({ id });
-    if (tempHealthEntity) {
-      tempHealthEntity.deleteOne();
+    if (!request.isCheckingDatabase) {
       service.generate200Ok(ctx, {
-        name: '{{cookiecutter.service_name}}',
         environment: getConfig().env,
         mode: process.env.MODE,
-        database: 'healthy',
+        database: 'checking ignored',
       });
+    } else {
+      const health = new HealthEntity({
+        id,
+        message: request.message,
+      });
+      await health.save();
+      const tempHealthEntity = HealthEntity.findOne({ id });
+      if (tempHealthEntity) {
+        tempHealthEntity.deleteOne();
+        service.generate200Ok(ctx, {
+          environment: getConfig().env,
+          database: 'healthy',
+        });
+      }
     }
   } catch (err) {
     service.generate500InternalError(ctx, err);

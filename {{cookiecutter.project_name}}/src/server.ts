@@ -1,9 +1,8 @@
 import KoaApp from './KoaApp';
-import { Mode } from './Constants';
 
 require('dotenv').config();
 
-const koaApp = new KoaApp(process.env.MODE as Mode);
+const koaApp = new KoaApp();
 
 const server = koaApp.start();
 

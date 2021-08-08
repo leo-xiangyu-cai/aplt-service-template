@@ -1,5 +1,5 @@
 {
-  "name": "aplt-{{cookiecutter.service_name}}",
+  "name": "sample-template",
   "version": "1.0.0",
   "dependencies": {
     "@types/jsonwebtoken": "^8.5.1",
@@ -42,14 +42,14 @@
   },
   "scripts": {
     "build": "tsc",
-    "start": "npm run build && MODE=App node dist/server.js",
-    "start:watch": "MODE=App nodemon src/server.ts",
-    "test": "MODE=UnitTest jest",
+    "start": "npm install && npm run build && ENVIRONMENT=dev node dist/server.js",
+    "start:watch": "ENVIRONMENT=dev nodemon src/server.ts",
+    "test": "ENVIRONMENT=unitTest jest --silent",
     "lint": "eslint ./"
   },
   "jest": {
-    "verbose": true,
-    "collectCoverage": true,
+    "verbose": false,
+    "collectCoverage": false,
     "modulePathIgnorePatterns": [
       "<rootDir>/node_modules/"
     ],
