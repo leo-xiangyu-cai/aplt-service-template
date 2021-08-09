@@ -31,6 +31,13 @@ containers:
         container: 5300
     working_directory: /code
 
+  git-env:
+    image: alpine/git:v2.30.2
+    volumes:
+      - local: .
+        container: /code
+    working_directory: /code
+
   mongodb-dev:
     image: mongo:latest
     ports:
@@ -83,3 +90,9 @@ tasks:
       command: npm run test
       environment:
         ENVIRONMENT: unitTestDocker
+
+  gitInit:
+    description: init git
+    run:
+      container: git-env
+      command: scripts/git-init.sh
