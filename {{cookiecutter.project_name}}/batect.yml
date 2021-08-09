@@ -1,4 +1,11 @@
 containers:
+  alpine-env:
+    build_directory: .batect/alpine
+    volumes:
+      - local: .
+        container: /code
+    working_directory: /code
+
   debug-env:
     image: alpine:3.11.3
     dependencies:
@@ -29,13 +36,6 @@ containers:
     ports:
       - local: 5300
         container: 5300
-    working_directory: /code
-
-  git-env:
-    image: alpine/git:v2.30.2
-    volumes:
-      - local: .
-        container: /code
     working_directory: /code
 
   mongodb-dev:
@@ -94,5 +94,5 @@ tasks:
   gitInit:
     description: init git
     run:
-      container: git-env
-      command: scripts/git-init.sh
+      container: alpine-env
+      command: bash scripts/git-init.sh
