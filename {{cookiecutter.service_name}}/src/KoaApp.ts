@@ -4,7 +4,6 @@ import cors from 'koa2-cors';
 import logger from 'koa-logger';
 import { Server } from 'http';
 import healthCheckRoutes from './controller/HealthCheckController';
-import userRoutes from './controller/UserController';
 import { getConfig } from './Configs';
 import BlockPrinter from './util/BlockPrinter';
 import { Environment } from './Constants';
@@ -48,7 +47,6 @@ export default class KoaApp {
     this.app.use(logger());
 
     this.app.use(healthCheckRoutes.routes());
-    this.app.use(userRoutes.routes());
   }
 
   start() {

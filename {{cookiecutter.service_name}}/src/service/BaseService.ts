@@ -9,7 +9,16 @@ export default class BaseService {
     data: object | null = null,
   ): Context => this.generateResponse(ctx, 200, 'OK', data);
 
-  generate400RequestInvalid = (ctx: Context | any, errors: object | string): Context => {
+  generate201Ok = (
+    ctx: Context | any,
+    message: string,
+    data: object | null = null,
+  ): Context => this.generateResponse(ctx, 201, message, data);
+
+  generate400RequestInvalid = (
+    ctx: Context | any,
+    errors: object | string | null = null,
+  ) : Context => {
     ctx.status = 400;
     ctx.body = { message: 'Invalid Request' };
     if (errors != null) (<any>(ctx.body)).data = errors;
@@ -22,7 +31,13 @@ export default class BaseService {
     return ctx;
   };
 
-  generate500InternalError = (ctx: Context | any, error: string): Context => {
+  generate403Forbidden = (ctx: Context | any): Context => {
+    ctx.status = 403;
+    ctx.body = { message: 'You are unauthorized' };
+    return ctx;
+  };
+
+  generate500InternalError = (ctx: Context | any, error: string = ''): Context => {
     ctx.status = 500;
     ctx.body = { message: `${error}` };
     return ctx;
