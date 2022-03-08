@@ -1,50 +1,39 @@
 import Router from 'koa-router';
-import { v4 as uuid } from 'uuid';
 import BaseService from '../service/BaseService';
 import { HealthEntity } from '../entity/Health';
-import HealthCheckRequest from '../request/HealthCheckRequest';
 import { getConfig } from '../Configs';
-
-const Authorise = require('../middleware/Authorise');
+import { Environment } from '../Constants';
 
 const router = new Router();
 const service = new BaseService();
 
-router.post('/health-check', async (ctx) => {
+router.get('/connection-check', async (ctx) => {
+  const healthEntity = new HealthEntity({
+    message: 'connection check test',
+  });
   try {
-    const request = new HealthCheckRequest(ctx.request.rawBody);
-    const id = uuid();
-    if (!request.isCheckingDatabase) {
-      service.generate200Ok(ctx, {
-        environment: getConfig().env,
-        mode: process.env.MODE,
-        database: 'checking ignored',
-      });
-    } else {
-      const health = new HealthEntity({
-        id,
-        message: request.message,
-      });
-      await health.save();
-      const tempHealthEntity = HealthEntity.findOne({ id });
-      if (tempHealthEntity) {
-        tempHealthEntity.deleteOne();
-        service.generate200Ok(ctx, {
-          environment: getConfig().env,
-          database: 'healthy',
-        });
-      }
+    await healthEntity.save();
+    const insertedHealthEntity = await HealthEntity.findOne({ id: healthEntity.id }).exec();
+    const data = {
+      environment: getConfig().env,
+      versionNumber: getConfig().versionNumber,
+      versionCode: getConfig().versionCode,
+      db: '',
+      dbStatus: insertedHealthEntity ? 'connected' : 'disconnected',
+    };
+    if (getConfig().env !== Environment.UNIT_TEST_DOCKER
+      && getConfig().env !== Environment.UNIT_TEST) {
+      const dbConnection = process.env.DB_CONNECTION as string;
+      data.db = dbConnection.substr(dbConnection.indexOf('@') + 1);
     }
-  } catch (err) {
-    service.generate500InternalError(ctx, err);
-  }
-});
-
-router.get('/auth-check', Authorise, async (ctx) => {
-  try {
-    service.generate200Ok(ctx);
-  } catch (err) {
-    service.generate500InternalError(ctx, err);
+    service.generate200Ok(ctx, data);
+  } catch (e) {
+    service.generate200Ok(ctx, {
+      environment: getConfig().env,
+      versionNumber: getConfig().versionNumber,
+      versionCode: getConfig().versionCode,
+      dbStatus: e,
+    });
   }
 });
 

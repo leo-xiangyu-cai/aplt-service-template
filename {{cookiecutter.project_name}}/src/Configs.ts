@@ -1,7 +1,12 @@
+import {
+  Environment, PORT_APP, PORT_UNIT_TEST, VERSION_CODE, VERSION_NUMBER,
+} from './Constants';
+
 export interface Config {
   env: string,
-  dbConn: string,
   port: number,
+  versionNumber: number,
+  versionCode: string,
 }
 
 interface Configs {
@@ -9,39 +14,54 @@ interface Configs {
 }
 
 const configs: Configs = {
-  unitTestDocker: {
-    env: 'Unit Test Docker',
-    dbConn: 'mongodb://test:test@mongodb-test:27017',
-    port: 5400,
+  UNIT_TEST_DOCKER: {
+    env: Environment.UNIT_TEST_DOCKER,
+    port: PORT_UNIT_TEST,
+    versionCode: VERSION_CODE,
+    versionNumber: VERSION_NUMBER,
   },
-  unitTestLocal: {
-    env: 'Unit Test Local',
-    dbConn: 'mongodb://test:test@localhost:27018',
-    port: 5400,
+  UNIT_TEST: {
+    env: Environment.UNIT_TEST,
+    port: PORT_UNIT_TEST,
+    versionCode: VERSION_CODE,
+    versionNumber: VERSION_NUMBER,
   },
-  dev: {
-    env: 'dev',
-    dbConn: 'mongodb://test:test@localhost:27017',
-    port: 5300,
+  LOCAL: {
+    env: Environment.LOCAL,
+    port: PORT_APP,
+    versionCode: VERSION_CODE,
+    versionNumber: VERSION_NUMBER,
   },
-  test: {
-    env: 'test',
-    dbConn: 'mongodb+srv://mongo_atlas_admin:vryNyZ2zZgPQcDu3@aplt-template.jm6sg.mongodb.net/aplt-template?retryWrites=true&w=majority',
-    port: 5300,
+  LOCAL_SERVER: {
+    env: Environment.LOCAL_SERVER,
+    port: PORT_APP,
+    versionCode: VERSION_CODE,
+    versionNumber: VERSION_NUMBER,
   },
-  uat: {
-    env: 'uat',
-    dbConn: 'https://uat.aplt.com.au',
-    port: 5300,
+  TEST_SERVER: {
+    env: Environment.TEST_SERVER,
+    port: PORT_APP,
+    versionCode: VERSION_CODE,
+    versionNumber: VERSION_NUMBER,
   },
-  prod: {
-    env: 'prod',
-    dbConn: 'https://prod.aplt.com.au',
-    port: 5300,
+  UAT_SERVER: {
+    env: Environment.UAT_SERVER,
+    port: PORT_APP,
+    versionCode: VERSION_CODE,
+    versionNumber: VERSION_NUMBER,
+  },
+  PROD_SERVER: {
+    env: Environment.PROD_SERVER,
+    port: PORT_APP,
+    versionCode: VERSION_CODE,
+    versionNumber: VERSION_NUMBER,
   },
 };
 
-export const getConfig = (): Config => {
-  const env = process.env.ENVIRONMENT || 'dev';
+export const getConfig = (environment: Environment = Environment.UNDEFINED): Config => {
+  if (environment !== Environment.UNDEFINED) {
+    return configs[environment];
+  }
+  const env = process.env.ENVIRONMENT as Environment || Environment.UNIT_TEST;
   return configs[env];
 };

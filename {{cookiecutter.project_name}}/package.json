@@ -42,9 +42,11 @@
   },
   "scripts": {
     "build": "npm install && tsc",
-    "start": "npm run build && ENVIRONMENT=dev node dist/server.js",
-    "start:watch": "ENVIRONMENT=dev nodemon src/server.ts",
-    "test": "jest --silent",
+    "start:runapp": "npm run build && ENVIRONMENT=LOCAL_SERVER node dist/src/server.js",
+    "start:local": "ENVIRONMENT=LOCAL nodemon src/server.ts",
+    "unitTest": "ENVIRONMENT=UNIT_TEST jest --silent",
+    "unitTestDocker": "ENVIRONMENT=UNIT_TEST_DOCKER jest --silent",
+    "unitTestDetect": "jest --runInBand --detectOpenHandles",
     "lint": "eslint ./"
   },
   "jest": {

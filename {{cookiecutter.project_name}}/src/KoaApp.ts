@@ -2,13 +2,20 @@ import Koa from 'koa';
 import bodyParser from 'koa-bodyparser';
 import cors from 'koa2-cors';
 import logger from 'koa-logger';
-import Mongo from 'mongoose';
 import { Server } from 'http';
 import healthCheckRoutes from './controller/HealthCheckController';
+import userRoutes from './controller/UserController';
 import { getConfig } from './Configs';
 import BlockPrinter from './util/BlockPrinter';
+import { Environment } from './Constants';
+
+const mongoose = require('mongoose');
 
 export default class KoaApp {
+  versionCode: string;
+
+  versionNumber: number;
+
   port: number;
 
   app: Koa;
@@ -19,37 +26,39 @@ export default class KoaApp {
 
   constructor() {
     this.app = new Koa();
-    this.dbConnect = getConfig().dbConn;
+    this.versionCode = getConfig().versionCode;
+    this.versionNumber = getConfig().versionNumber;
+    if (getConfig().env === Environment.UNIT_TEST_DOCKER) {
+      this.dbConnect = 'mongodb://test:test@mongodb-test:27017';
+    } else if (getConfig().env === Environment.UNIT_TEST) {
+      this.dbConnect = 'mongodb://test:test@localhost:27018';
+    } else {
+      this.dbConnect = process.env.DB_CONNECTION as string;
+    }
     this.port = getConfig().port;
-    // switch (this.mode) {
-    //   case Mode.App:
-    //     this.dbConnect = getConfig().dbConn;
-    //     this.port = PORT_APP;
-    //     break;
-    //   case Mode.UnitTest:
-    //     this.dbConnect = DB_CONNECT_UNITTEST;
-    //     this.port = PORT_UNITTEST;
-    //     break;
-    //   default:
-    //     throw new Error(`Invalid mode ${this.mode} the mode can be only one of {App, UnitTest}`);
-    // }
-    Mongo.connect(this.dbConnect, { useNewUrlParser: true, useUnifiedTopology: true }, () => { });
+    try {
+      mongoose.connect(this.dbConnect,
+        { useNewUrlParser: true, useUnifiedTopology: true }, () => { });
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.log('e:\n', e);
+    }
     this.app.use(bodyParser());
-    this.app.use(
-      cors({
-        origin: '*',
-      }),
-    );
+    this.app.use(cors({ origin: '*' }));
     this.app.use(logger());
 
     this.app.use(healthCheckRoutes.routes());
+    this.app.use(userRoutes.routes());
   }
 
   start() {
     const blockPrinter = new BlockPrinter('Aplt Service');
-    blockPrinter.push(`env:     ${process.env.ENVIRONMENT}`);
-    blockPrinter.push(`port:    ${this.port}`);
-    blockPrinter.push(`db:      ${this.dbConnect}`);
+    blockPrinter.push(`version number:    ${this.versionNumber}`);
+    blockPrinter.push(`version code:      ${this.versionCode}`);
+    blockPrinter.push(`url:               http://localhost:${this.port}`);
+    blockPrinter.push(`env:               ${getConfig().env}`);
+    blockPrinter.push(`port:              ${this.port}`);
+    blockPrinter.push(`db:                ${this.dbConnect}`);
     this.server = this.app.listen(this.port, async () => {
       blockPrinter.push('status:  running');
       blockPrinter.print();
@@ -64,7 +73,7 @@ export default class KoaApp {
   }
 
   stop = () => {
-    Mongo.connection.close().then();
+    mongoose.connection.close().then();
     this.server?.close();
   };
 }

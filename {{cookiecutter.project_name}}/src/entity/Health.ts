@@ -1,8 +1,7 @@
 import { model, Schema } from 'mongoose';
 import { v4 as uuid } from 'uuid';
-import { Mode } from '../Constants';
-
-require('dotenv').config();
+import { Environment } from '../Constants';
+import { getConfig } from '../Configs';
 
 const collectionName = 'Health';
 
@@ -17,7 +16,7 @@ const healthSchema = new Schema<Health>({
 });
 
 export const HealthEntity = model<Health>(
-  process.env.MODE as Mode === Mode.UnitTest
-    ? `${collectionName}-${uuid()}-test`
-    : collectionName, healthSchema,
+  getConfig().env === Environment.UNIT_TEST
+    ? `${collectionName}-${uuid()}`
+    : `${collectionName}`, healthSchema,
 );

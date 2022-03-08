@@ -9,8 +9,8 @@ containers:
   debug-env:
     image: alpine:3.11.3
     dependencies:
+      - mongodb
       - mongodb-test
-      - mongodb-dev
 
   lint-env:
     image: node:10-alpine
@@ -28,8 +28,11 @@ containers:
         container: /code
     working_directory: /code
 
+
   runtime-env:
     image: node:10-alpine
+    dependencies:
+      - mongodb
     volumes:
       - local: .
         container: /code
@@ -38,15 +41,13 @@ containers:
         container: 5300
     working_directory: /code
 
-  mongodb-dev:
+  mongodb:
     image: mongo:latest
     ports:
       - 27017:27017
     environment:
       MONGO_INITDB_ROOT_USERNAME: test
       MONGO_INITDB_ROOT_PASSWORD: test
-    additional_hostnames:
-      - 127.0.0.1
 
   mongodb-test:
     image: mongo:latest
@@ -58,11 +59,6 @@ containers:
       MONGO_INITDB_ROOT_PASSWORD: test
 
 tasks:
-  debug:
-    description: run as debug mode
-    run:
-      container: debug-env
-
   lint:
     description: run eslint
     run:
@@ -75,21 +71,24 @@ tasks:
       container: runtime-env
       command: npm run build
 
+  debug:
+    description: Start both mongodb and mongodb-test, run for both local development and local test
+    run:
+      container: debug-env
+
   runApp:
-    description: run app
+    description: Run app in different server. The first argument is the server name.
     run:
       container: runtime-env
-      command: npm run start
+      command: npm run start:runapp
 
   test:
-    description: run test
+    description: run all unit test and endpoint test
     prerequisites:
       - build
     run:
       container: test-env
-      command: npm run test
-      environment:
-        ENVIRONMENT: unitTestDocker
+      command: npm run unitTestDocker
 
   gitInit:
     description: init git
