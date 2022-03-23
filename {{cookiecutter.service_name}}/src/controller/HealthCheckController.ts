@@ -15,6 +15,7 @@ router.get('/connection-check', async (ctx) => {
     await healthEntity.save();
     const insertedHealthEntity = await HealthEntity.findOne({ id: healthEntity.id }).exec();
     const data = {
+      serviceName: getConfig().serviceName,
       environment: getConfig().env,
       versionNumber: getConfig().versionNumber,
       versionCode: getConfig().versionCode,
@@ -29,6 +30,7 @@ router.get('/connection-check', async (ctx) => {
     service.generate200Ok(ctx, data);
   } catch (e) {
     service.generate200Ok(ctx, {
+      serviceName: getConfig().serviceName,
       environment: getConfig().env,
       versionNumber: getConfig().versionNumber,
       versionCode: getConfig().versionCode,

@@ -11,6 +11,8 @@ import { Environment } from './Constants';
 const mongoose = require('mongoose');
 
 export default class KoaApp {
+  serviceName: string;
+
   versionCode: string;
 
   versionNumber: number;
@@ -51,6 +53,7 @@ export default class KoaApp {
 
   start() {
     const blockPrinter = new BlockPrinter('Aplt Service');
+    blockPrinter.push(`service name:      ${this.serviceName}`);
     blockPrinter.push(`version number:    ${this.versionNumber}`);
     blockPrinter.push(`version code:      ${this.versionCode}`);
     blockPrinter.push(`url:               http://localhost:${this.port}`);

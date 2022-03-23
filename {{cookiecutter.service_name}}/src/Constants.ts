@@ -14,3 +14,4 @@ export const PORT_UNIT_TEST = 5400;
 
 export const VERSION_NUMBER = 1;
 export const VERSION_CODE = '0.0.1';
+export const SERVICE_NAME = '{{cookiecutter.service_name}} Service';
