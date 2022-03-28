@@ -1,9 +1,8 @@
 import { validate } from 'class-validator';
 import { Context } from 'koa';
+import BaseRequest from '../request/BaseRequest';
 
 export default class BaseService {
-  validate = async (request: any) => validate(request, {});
-
   generate200Ok = (
     ctx: Context | any,
     data: object | null = null,
@@ -53,5 +52,13 @@ export default class BaseService {
     ctx.body = { message };
     if (data) (<any>(ctx.body)).data = data;
     return ctx;
+  };
+
+  validateError = async (ctx: Context | any, request: BaseRequest):Promise<Context | null> => {
+    const errors = await validate(request, {});
+    if (errors.length > 0) {
+      return this.generate400RequestInvalid(ctx, errors);
+    }
+    return null;
   };
 }
