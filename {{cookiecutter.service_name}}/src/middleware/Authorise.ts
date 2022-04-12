@@ -3,12 +3,13 @@ import { JwtPayload, verify } from 'jsonwebtoken';
 import BaseService from '../service/BaseService';
 
 module.exports = async (ctx: Context, next: Next): Promise<void> => {
-  const token = ctx.request.headers.authorization as string;
   const service = new BaseService();
   try {
-    const jwtPayload = verify(token.replace('Bearer ', ''), process.env.TOKEN_SECRET as string) as JwtPayload;
+    const token = ctx.request.headers.authorization as string;
+    const jwtPayload = verify(token.replace(/[Bb]earer /, ''), process.env.TOKEN_SECRET as string) as JwtPayload;
     if (jwtPayload.expirationTime > Date.now()) {
-      ctx.jwtPayload = jwtPayload;
+      ctx.state.userId = jwtPayload.userId;
+      ctx.state.organizationId = jwtPayload.organizationId;
       await next();
     } else {
       service.generate401Unauthorized(ctx, 'token is expired');
