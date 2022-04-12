@@ -27,6 +27,7 @@ export default class KoaApp {
 
   constructor() {
     this.app = new Koa();
+    this.serviceName = getConfig().serviceName;
     this.versionCode = getConfig().versionCode;
     this.versionNumber = getConfig().versionNumber;
     if (getConfig().env === Environment.UNIT_TEST_DOCKER) {

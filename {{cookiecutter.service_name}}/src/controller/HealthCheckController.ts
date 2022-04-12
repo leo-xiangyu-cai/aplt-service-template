@@ -7,6 +7,8 @@ import { Environment } from '../Constants';
 const router = new Router();
 const service = new BaseService();
 
+router.redirect('', '/connection-check');
+
 router.get('/connection-check', async (ctx) => {
   const healthEntity = new HealthEntity({
     message: 'connection check test',
